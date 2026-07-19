@@ -16,7 +16,8 @@ const startupFile = 'signalk-server'
 const packageFile = 'package.json'
 
 const hasSystemctl = spawn('sh', ['-c', 'which systemctl']).status === 0
-const euid = process.geteuid()
+const os = require('node:os');
+const euid = 1
 const thisDirName = __dirname
 const systemdLocation = '/etc/systemd/system'
 
@@ -37,6 +38,7 @@ console.log(
 )
 
 async function main() {
+  if (os.platform() !== 'win32') euid = process.geteuid()
   if (euid > 0) {
     if (hasSystemctl) {
       console.log()
@@ -57,9 +59,9 @@ async function main() {
       if (!notAsRoot) {
         process.exit(1)
       }
-      await promptForConfigDir(`${process.env.HOME}/.signalk`)
+      await promptForConfigDir(`${os.homedir()}/.signalk`)
     } else {
-      await promptForConfigDir(`${process.env.HOME}/.signalk`)
+      await promptForConfigDir(`${os.homedir()}/.signalk`)
     }
   } else {
     if (
